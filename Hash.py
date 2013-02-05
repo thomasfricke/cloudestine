@@ -1,3 +1,7 @@
+'''
+class to map filenames and paths to hashes
+@author: thomas
+'''
 import hashlib
 
 class Hash(object):
