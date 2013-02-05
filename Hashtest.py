@@ -14,7 +14,7 @@ class Hashtest(unittest.TestCase):
         self.assertEqual( len ( path ), self.hash.split_num )
         self.assertEqual( len ( self.hash.hash("") ), self.hash.split_num*len( path[0] ) )
         for e in path:
-          self.assertEqual(len( path[0]), len(e))
+            self.assertEqual(len( path[0]), len(e))
         pass
 
 if __name__ == '__main__':
