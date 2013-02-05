@@ -1,12 +1,12 @@
 #!/usr/bin/env python 
 
 import unittest
-from Hash import Hash
+from io.HashPath import HashPath
 
 class Hashtest(unittest.TestCase):
 
     def setUp(self):
-        self.hash = Hash("Salt")
+        self.hash = HashPath("Salt")
 
    
     def test_hash(self):

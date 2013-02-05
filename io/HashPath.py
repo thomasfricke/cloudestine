@@ -4,7 +4,7 @@ class to map filenames and paths to hashes
 '''
 import hashlib
 
-class Hash(object):
+class HashPath(object):
     algos= {'md5': hashlib.md5, 
             'sha1': hashlib.sha1,
             'sha224': hashlib.sha224, 
@@ -17,9 +17,9 @@ class Hash(object):
     def __split__(arr, count):
         return [arr[i::count] for i in range(count)]
      
-    def __init__(self,salt,algorithm="sha512",split_num=32):
+    def __init__(self,salt,algorithm="sha512",split_num=8):
         self.salt = salt
-        self.algo = Hash.algos[algorithm]
+        self.algo = HashPath.algos[algorithm]
         self.split_num=split_num
         
     def hash(self,s):
@@ -27,5 +27,5 @@ class Hash(object):
         return digest.hexdigest()
     
     def path(self,s):
-        return Hash.__split__(self.hash(s),self.split_num)
+        return HashPath.__split__(self.hash(s),self.split_num)
 
