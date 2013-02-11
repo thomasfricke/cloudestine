@@ -17,7 +17,7 @@ class HashPath(object):
     def __split__(arr, count):
         return [arr[i::count] for i in range(count)]
      
-    def __init__(self,salt,algorithm="sha512",split_num=8):
+    def __init__(self,salt,algorithm="sha1",split_num=4):
         self.salt = salt
         self.algo = HashPath.algos[algorithm]
         self.split_num=split_num
