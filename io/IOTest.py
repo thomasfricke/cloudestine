@@ -20,7 +20,7 @@ Created on 05.02.2013
 
 @author: thomas
 '''
-from File import File
+from FileName import FileName
 import os
 import shutil
 
@@ -32,19 +32,24 @@ class FileTest(unittest.TestCase):
 
 
     def testName(self):
-        f=File('tmp')
-        f.create('test')
-        assert(os.path.exists('tmp/test'))
+        f=FileName('tmp')
+        f.createdirs('dir/test')
+        assert(os.path.exists('tmp/dir'))
         pass
     
     def testHashFileName(self):
         name="Hi"
         hashpath=HashPath("More Salt")
         hashfile='/'.join(hashpath.path(name))
-        print hashfile
-        f=File('tmp')
-        f.create(hashfile)
-        assert(os.path.exists('tmp/'+hashfile))
+
+        filename=FileName('tmp')
+        filename.createdirs(hashfile)
+        assert(os.path.isdir(os.path.dirname('tmp/'+hashfile)))
+        
+        f=filename.createfile(hashfile)
+        f.close()
+        assert(os.path.exists(('tmp/'+hashfile)))
+        
         pass
 
         
