@@ -10,11 +10,12 @@ class FileName(object):
     def __init__(self,base):
         self.base=base
     
-    def createdirs(self,path):
+    def makedirs(self,path):
         directory=os.path.dirname(self.base+"/"+path)
         if not os.path.exists(directory):
             os.makedirs(directory)
     
-    def createfile(self,path):
-        self.createdirs(path)
-        return open(self.base+"/"+path, "w")
+    def open(self,path,mode='r'):
+        if mode == 'w':
+            self.makedirs(path)
+        return open(self.base+"/"+path, mode)

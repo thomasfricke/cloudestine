@@ -33,7 +33,7 @@ class FileTest(unittest.TestCase):
 
     def testName(self):
         f=FileName('tmp')
-        f.createdirs('dir/test')
+        f.makedirs('dir/test')
         assert(os.path.exists('tmp/dir'))
         pass
     
@@ -43,13 +43,19 @@ class FileTest(unittest.TestCase):
         hashfile='/'.join(hashpath.path(name))
 
         filename=FileName('tmp')
-        filename.createdirs(hashfile)
+        filename.makedirs(hashfile)
         assert(os.path.isdir(os.path.dirname('tmp/'+hashfile)))
         
-        f=filename.createfile(hashfile)
+        f=filename.open(hashfile,'w')
+        f.write("fine!")
         f.close()
         assert(os.path.exists(('tmp/'+hashfile)))
         
+        f=filename.open(hashfile,'r')
+        line=f.readline()
+        f.close()
+
+        assert( line == "fine!")
         pass
 
         
