@@ -3,7 +3,7 @@
 import unittest
 from  cloudestine.io.hashpath import HashPath
 from cloudestine.cloudestine import Cloudestine
-from signal import SIGTERM, SIGKILL
+from signal import SIGKILL
 from time import sleep
 import sys
 
@@ -29,65 +29,96 @@ import os
 import shutil
 from cloudestine.fuse import FUSE
 
+
+
 class CloudestineTest(unittest.TestCase):
-    
+    def unmount(self):
+        os.system("fusermount -u %s" % self.fusedir)
+
+    def __init__(self,test_name):
+        super(CloudestineTest, self).__init__(test_name)
+        self.fusedir='cloudestine/mount'
+        self.storage_dir='cloudestine/storage' 
+              
     def tearDown(self):
-        if self.count_Cloudestine() >0:
-            os.system("sudo umount tmp")
+        if self.is_mounted() >0:
+            self.unmount()
             if self.child >0 :
                 os.kill(self.child, SIGKILL )
-        
-        if os.path.isdir('tmp'):
-            shutil.rmtree('tmp') 
-        pass
+        for d in (self.fusedir,self.storage_dir):
+            if os.path.isdir(d):
+                shutil.rmtree(d) 
+                pass
     
     def setUp(self):
         self.child=-1
-        os.makedirs('tmp')
+        os.makedirs(self.fusedir)
         pass
     
-    def count_Cloudestine(self):
-        found=0
+    def is_mounted(self):
+        found=False
         
         proc_mount=file('/proc/mounts','r')
-        for mount_point in proc_mount.readlines():
-            if mount_point.startswith("Cloudestine"):
-                found += 1
+        for line in proc_mount.readlines():
+            
+            array=line.split(' ')
+
+            if len(array)<3:
+                continue 
+            (fs, mount_point, fuse)=array[0:3]
+            if fs != 'Cloudestine':
+                continue
+            working_directory = os.getcwd()+"/"+self.fusedir
+            if mount_point != working_directory:
+                continue
+            if fuse != fuse:
+                continue
+          
+            print line
+            print array
+
+            found = True
+            break
+        
         proc_mount.close()
         
         return found
     
     def test_Cloudestine_file_system_start(self):
-        cloudestine = Cloudestine(True,"tmp")
+        cloudestine = Cloudestine(True,self.fusedir,None)
         
-        self.assertEqual(self.count_Cloudestine(),0, "should not run" )
+        self.assertFalse(self.is_mounted(), "should not run" )
    
         self.child=os.fork()
         
         if self.child == 0 :
-            fuse = FUSE( cloudestine,"tmp", foreground=False )
+            Cloudestine.main([self.fusedir,None])
             sys.exit(0)
             
         sleep(2)
-        self.assertEqual(self.count_Cloudestine(),1, "should run" )
+        self.assertTrue(self.is_mounted(), "should run" )
         
-        os.system("sudo umount tmp")
-       
+        self.unmount()       
+        sleep(2)
         
-        self.assertEqual(self.count_Cloudestine(),0, "should not run" )
+        self.assertFalse(self.is_mounted(), "should not run" )
         
         
         
         
 class FileTest(unittest.TestCase):
 
+    def __init__(self,test_name):
+        super(FileTest, self).__init__(test_name)
+        self.tmpdir = 'tmp'
+   
     def tearDown(self):
-        shutil.rmtree('tmp') 
+        shutil.rmtree(self.tmpdir) 
         pass
 
 
     def testName(self):
-        f=FileName('tmp')
+        f=FileName(self.tmpdir)
         f.makedirs('dir/test')
         assert(os.path.exists('tmp/dir'))
         pass
@@ -97,7 +128,7 @@ class FileTest(unittest.TestCase):
         hashpath=HashPath("More Salt")
         hashfile='/'.join(hashpath.path(name))
 
-        filename=FileName('tmp')
+        filename=FileName(self.tmpdir)
         filename.makedirs(hashfile)
         assert(os.path.isdir(os.path.dirname('tmp/'+hashfile)))
         
