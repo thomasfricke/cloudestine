@@ -3,7 +3,6 @@ class to map filenames and paths to hashes
 @author: thomas
 '''
 import hashlib
-
 class HashPath(object):
     algos= {'md5': hashlib.md5, 
             'sha1': hashlib.sha1,

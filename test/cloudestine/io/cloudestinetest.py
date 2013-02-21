@@ -1,37 +1,23 @@
 #!/usr/bin/env python 
 
-import unittest
-from  cloudestine.io.hashpath import HashPath
+import unittest2
 from cloudestine.cloudestine import Cloudestine
 from signal import SIGKILL
 from time import sleep
 import sys
 
-class Hashtest(unittest.TestCase):
 
-    def setUp(self):
-        self.hash = HashPath("Salt")
-   
-    def test_hashpath_and_count_parts(self):
-        path= self.hash.path("") 
-        self.assertEqual( len ( path ), self.hash.split_num )
-        self.assertEqual( len ( self.hash.hash("") ), self.hash.split_num*len( path[0] ) )
-        for e in path:
-            self.assertEqual(len( path[0]), len(e))
-        pass
 '''
 Created on 05.02.2013
 
 @author: thomas
 '''
-from cloudestine.io.filename import FileName
 import os
 import shutil
-from cloudestine.fuse import FUSE
 
 
 
-class CloudestineTest(unittest.TestCase):
+class CloudestineTest(unittest2.TestCase):
     def unmount(self):
         os.system("fusermount -u %s" % self.fusedir)
 
@@ -85,7 +71,7 @@ class CloudestineTest(unittest.TestCase):
         return found
     
     def test_Cloudestine_file_system_start(self):
-        cloudestine = Cloudestine(True,self.fusedir,None)
+        Cloudestine(True,self.fusedir,None)
         
         self.assertFalse(self.is_mounted(), "should not run" )
    
@@ -102,49 +88,7 @@ class CloudestineTest(unittest.TestCase):
         sleep(2)
         
         self.assertFalse(self.is_mounted(), "should not run" )
-        
-        
-        
-        
-class FileTest(unittest.TestCase):
-
-    def __init__(self,test_name):
-        super(FileTest, self).__init__(test_name)
-        self.tmpdir = 'tmp'
-   
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir) 
-        pass
-
-
-    def testName(self):
-        f=FileName(self.tmpdir)
-        f.makedirs('dir/test')
-        assert(os.path.exists('tmp/dir'))
-        pass
-    
-    def test_makedirs_with_HashFileName_and_create_write_and_read_file(self):
-        name="Hi"
-        hashpath=HashPath("More Salt")
-        hashfile='/'.join(hashpath.path(name))
-
-        filename=FileName(self.tmpdir)
-        filename.makedirs(hashfile)
-        assert(os.path.isdir(os.path.dirname('tmp/'+hashfile)))
-        
-        f=filename.open(hashfile,'w')
-        f.write("fine!")
-        f.close()
-        assert(os.path.exists(('tmp/'+hashfile)))
-        
-        f=filename.open(hashfile,'r')
-        line=f.readline()
-        f.close()
-
-        assert( line == "fine!")
-        pass
-
-        
+                
         
 if __name__ == "__main__":
-    unittest.main()
+    unittest2.main()
