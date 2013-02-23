@@ -2,8 +2,11 @@ import unittest2
 
 from cloudestine.io.hashpath import HashPath
 
-class Hashtest(unittest2.TestCase):
+class HashTest(unittest2.TestCase):
 
+    def __init__(self,test_name):
+        super(HashTest, self).__init__(test_name)
+   
     def setUp(self):
         self.hash = HashPath("Salt")
    

@@ -1,28 +1,24 @@
-'''
-Created on 23.02.2013
-
-@author: thomas
-'''
-import unittest2
-import shutil
-from cloudestine.io.filename import FileName
 import os
-from cloudestine.io.hashpath import HashPath
+import shutil
+import unittest2
 
+from filename import FileName
+from hashpath import HashPath
 
-class FTest(unittest2.TestCase):
+class FileTest(unittest2.TestCase):
 
     def __init__(self,test_name):
-        super(FTest, self).__init__(test_name)
+        super(FileTest, self).__init__(test_name)
         self.tmpdir = 'tmp'
-     
+   
     def setUp(self):
         pass
    
     def tearDown(self):
         shutil.rmtree(self.tmpdir) 
         pass
-    
+
+
     def test_name(self):
         pass
         f=FileName(self.tmpdir)
@@ -52,6 +48,5 @@ class FTest(unittest2.TestCase):
         assert( line == "fine!")
         pass
     
-
 if __name__ == "__main__":
     unittest2.main()
