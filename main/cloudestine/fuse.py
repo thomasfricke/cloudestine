@@ -517,9 +517,9 @@ class FUSE(object):
 
     def release(self, path, fip):
         if self.raw_fi:
-          fh = fip.contents
+            fh = fip.contents
         else:
-          fh = fip.contents.fh
+            fh = fip.contents.fh
 
         return self.operations('release', path.decode(self.encoding), fh)
 

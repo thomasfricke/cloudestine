@@ -23,18 +23,18 @@ class CloudestineTest(unittest2.TestCase):
 
     def __init__(self,test_name):
         super(CloudestineTest, self).__init__(test_name)
-        self.fusedir='cloudestine/mount'
-        self.storage_dir='cloudestine/storage' 
+        self.basedir='/tmp/cloudestine'
+        self.fusedir=self.basedir+'/mount'
+        self.storage_dir=self.basedir+'/storage' 
               
     def tearDown(self):
         if self.is_mounted() >0:
             self.unmount()
             if self.child >0 :
                 os.kill(self.child, SIGKILL )
-        for d in (self.fusedir,self.storage_dir):
-            if os.path.isdir(d):
-                shutil.rmtree(d) 
-                pass
+        if os.path.isdir(self.basedir):
+            shutil.rmtree(self.basedir) 
+        pass
     
     def setUp(self):
         self.child=-1
@@ -54,10 +54,10 @@ class CloudestineTest(unittest2.TestCase):
             (fs, mount_point, fuse)=array[0:3]
             if fs != 'Cloudestine':
                 continue
-            working_directory = os.getcwd()+"/"+self.fusedir
+            working_directory = self.fusedir
             if mount_point != working_directory:
                 continue
-            if fuse != fuse:
+            if fuse != 'fuse':
                 continue
           
             print line

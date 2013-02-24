@@ -18,10 +18,12 @@ from io.hashpath import HashPath
 
 class Cloudestine(LoggingMixIn, Operations):
 
-    def __init__(self, mount,storage,verbose,hash_algorithm='sha1',hash_split=4 ) :
+    def __init__(self, mount,storage,verbose,gnupghome='~/.cloudestine/gpg',
+                 hash_algorithm='sha1',hash_split=4 ) :
         self.verbose = verbose
         self.mount = mount
         self.storage = storage
+        self.gnupghome = gnupghome 
         self.hashpath = HashPath("",hash_algorithm,split_num=hash_split)
         pass
     
@@ -36,7 +38,10 @@ class Cloudestine(LoggingMixIn, Operations):
     @classmethod
     def main(clazz,sys_argv=sys.argv[1:]):
         try:
-            opts, args = getopt.getopt(sys_argv, "hfm#:", ["help","foreground=","hash-algorithm="])
+            opts, args = getopt.getopt(sys_argv, "fg:hm#:", 
+                                       ["help","foreground=",
+                                        "hash-algorithm=",
+                                        "gnupg-home="])
             if len(args) <2:
                 raise GetoptError("mount or storage path missing")
             elif len(args)>3:
@@ -49,6 +54,7 @@ class Cloudestine(LoggingMixIn, Operations):
         
         verbose = False
         foreground = False
+        gnupghome='~/.cloudestine/gpg'
         mount = args[0]
         storage = args[1]
         hash_algorithm = 'sha1'
@@ -63,6 +69,8 @@ class Cloudestine(LoggingMixIn, Operations):
                 mount = a
             elif o in ("-f","--foreground"):
                 foreground=True
+            elif o in ("-f","--gnupg-home"):
+                gnupghome=a
             elif o in ("-#","--hash-algorithm"):
                 hash_algorithm = a
             else:
@@ -75,7 +83,8 @@ class Cloudestine(LoggingMixIn, Operations):
                 sys.exit(1)
        
             
-        cloudestine=Cloudestine(mount,storage,verbose=verbose,hash_algorithm=hash_algorithm)
+        cloudestine=Cloudestine(mount,storage,gnupghome=gnupghome,
+                                verbose=verbose,hash_algorithm=hash_algorithm)
          
         FUSE( cloudestine, mount, foreground=foreground)
 

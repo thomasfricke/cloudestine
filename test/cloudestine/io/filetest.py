@@ -10,10 +10,10 @@ import os
 from cloudestine.io.hashpath import HashPath
 
 
-class FTest(unittest2.TestCase):
+class FileTest(unittest2.TestCase):
 
     def __init__(self,test_name):
-        super(FTest, self).__init__(test_name)
+        super(FileTest, self).__init__(test_name)
         self.tmpdir = 'tmp'
      
     def setUp(self):
