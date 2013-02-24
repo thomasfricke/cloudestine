@@ -10,6 +10,7 @@ class Crypt(object):
     def __init__(self,home):
         self.home=home
         self.gpg=gnupg.GPG(gnupghome=self.home)
+        self.list_keys=self.gpg.list_keys
         pass
 
     """
@@ -22,9 +23,13 @@ class Crypt(object):
                                       name_real = "auto generated" ,
                                       passphrase = passphrase,key_type="RSA", 
                                       key_length = key_length)
-        print auth
+        #print auth
         key = self.gpg.gen_key(auth)
         print key.fingerprint
-        f=open(self.home+'/'+key.fingerprint,'w')
-        f.write(self.gpg.export_keys(key, True))
-        f.close
+        with open(self.home+'/'+key.fingerprint,'w') as f:
+            f.write(self.gpg.export_keys(key, True))
+            f.close
+            
+        return key
+    
+    
