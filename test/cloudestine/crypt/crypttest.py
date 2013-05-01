@@ -44,11 +44,13 @@ class CryptTest(unittest2.TestCase):
         i=0
         while i<10:
             start=time.time()
-            created_keys.append( crypt.create("test@example.com", "passphrase").__str__() )
+            created_keys.append( crypt.create("test@example.com", "passphrase",
+                                              key_length=256).__str__() )
             i+=1
             stop=time.time()
             print "start=%f stop=%f" %(start,stop)
-            self.assertLess(cpuMHz *(stop-start), 20000.0, "system is to slow, check entropy gathering")
+            self.assertLess(cpuMHz *(stop-start), 20000.0, 
+                            "system is to slow, check entropy gathering")
         
         ascii_armored_public_keys = crypt.gpg.export_keys(created_keys)
         self.assertTrue(ascii_armored_public_keys.
