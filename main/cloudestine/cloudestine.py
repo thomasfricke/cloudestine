@@ -5,8 +5,6 @@ Created on 12.02.2013
 '''
 #!/usr/bin/env python
 
-from __future__ import with_statement
-
 import getopt
 import os
 import sys

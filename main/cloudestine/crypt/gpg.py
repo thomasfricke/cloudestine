@@ -14,7 +14,7 @@ class Crypt(object):
         pass
 
     """
-    maps to gnupg, not that key generation is terribly slow if you do not 
+    maps to gnupg, note that key generation is terribly slow if you do not 
     provide enough entropy
     """
     def create(self,email,passphrase, key_length=4096):

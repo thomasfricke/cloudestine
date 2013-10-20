@@ -15,9 +15,13 @@
 
 from __future__ import division
 
-from ctypes import *
+from ctypes import c_byte, c_char_p, c_int, c_int32, c_int64, c_long
+from ctypes import c_longlong, c_size_t, c_uint, c_uint32,c_uint16, c_uint64
+from ctypes import c_ulong, c_ulonglong, c_ushort, c_voidp, CDLL, CFUNCTYPE
+from ctypes import create_string_buffer, memmove, memset, pointer, POINTER
+from ctypes import RTLD_GLOBAL, sizeof, string_at, Structure
 from ctypes.util import find_library
-from errno import *
+from errno import EFAULT, EIO, ERANGE, ENOENT, EROFS
 from os import strerror
 from platform import machine, system
 from signal import signal, SIGINT, SIG_DFL
@@ -41,10 +45,10 @@ except ImportError:
         newfunc.keywords = keywords
         return newfunc
 
-try:
-    basestring
-except NameError:
-    basestring = str
+#try:
+#    basestring
+#except NameError:
+#    basestring = str
 
 class c_timespec(Structure):
     _fields_ = [('tv_sec', c_long), ('tv_nsec', c_long)]
@@ -470,9 +474,9 @@ class FUSE(object):
 
     def read(self, path, buf, size, offset, fip):
         if self.raw_fi:
-          fh = fip.contents
+            fh = fip.contents
         else:
-          fh = fip.contents.fh
+            fh = fip.contents.fh
 
         ret = self.operations('read', path.decode(self.encoding), size,
                                       offset, fh)
@@ -483,7 +487,7 @@ class FUSE(object):
         assert retsize <= size, \
             'actual amount read %d greater than expected %d' % (retsize, size)
 
-        data = create_string_buffer(ret, retsize)
+        create_string_buffer(ret, retsize)
         memmove(buf, ret, retsize)
         return retsize
 
