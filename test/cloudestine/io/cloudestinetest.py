@@ -55,9 +55,14 @@ class CloudestineTest(unittest2.TestCase):
             if fs != 'Cloudestine':
                 continue
             working_directory = self.fusedir
+            
             if mount_point != working_directory:
                 continue
+            
             if fuse != 'fuse':
+                continue
+           
+            if mount_point != self.fusedir :
                 continue
           
             print line
@@ -70,7 +75,7 @@ class CloudestineTest(unittest2.TestCase):
         
         return found
     
-    def test_Cloudestine_file_system_start(self):
+    def test_Cloudestine_file_system_start_and_stop(self):
         Cloudestine(True,self.fusedir,None)
         
         self.assertFalse(self.is_mounted(), "should not run" )
@@ -88,7 +93,11 @@ class CloudestineTest(unittest2.TestCase):
         sleep(2)
         
         self.assertFalse(self.is_mounted(), "should not run" )
-                
+     
+    def test_Cloudestine_write_read_file(self):
+        cloudestine = Cloudestine(True,self.fusedir,None) 
+        cloudestine.create("file", 0x644)
+        
         
 if __name__ == "__main__":
     unittest2.main()

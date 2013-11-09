@@ -12,6 +12,7 @@ import sys
 from fuse import FUSE, Operations, LoggingMixIn
 from getopt import GetoptError
 from io.hashpath import HashPath
+from distutils.log import debug
 
 
 class Cloudestine(LoggingMixIn, Operations):
@@ -25,6 +26,9 @@ class Cloudestine(LoggingMixIn, Operations):
         self.hashpath = HashPath("",hash_algorithm,split_num=hash_split)
         pass
     
+    def create(self, path, mode, fi=None):
+        debug ("should create %s in mode %s" % (path, str(mode) ) )
+        
     @classmethod    
     def usage():
         print """
