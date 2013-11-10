@@ -9,15 +9,15 @@ class HashTestSha1(unittest2.TestCase):
         super(HashTestSha1, self).__init__(test_name)
         
     def setUp(self):
-        self.hash = HashPath("Salt",separator="\n")
+        self.hashpath = HashPath("Salt",separator="\n")
         self.hash_of_Test = hashlib.sha1('Salt\nTest\nmain\n2').hexdigest()
         
     def test_hashpath_split(self):
         
-        self.assertEqual(self.hash_of_Test,''.join(HashPath.__split__(self.hash_of_Test, self.hash.split_num)))
+        self.assertEqual(self.hash_of_Test,''.join(HashPath.__split__(self.hash_of_Test, self.hashpath.split_num)))
         
     def test_hashpath_and_count_parts(self):
-        path= self.hash.path('Test',"main",2)
+        path= self.hashpath.path('Test',"main",2)
         self.assertEqual(len(path), len(self.hash_of_Test)+9)
         self.assertEqual(self.hash_of_Test, string.replace(path, '/', '', 9))
         
@@ -28,14 +28,14 @@ class HashTestMd5(unittest2.TestCase):
         super(HashTestMd5, self).__init__(test_name)
         
     def setUp(self):
-        self.hash = HashPath("Salt",separator="#", algorithm=hashlib.md5)
+        self.hashpath = HashPath("Salt",separator="#", algorithm=hashlib.md5)
         self.hash_of_Test = hashlib.md5('Salt#Test#main#2').hexdigest()
         
     def test_hashpath_split(self):
         
-        self.assertEqual(self.hash_of_Test,''.join(HashPath.__split__(self.hash_of_Test, self.hash.split_num)))
+        self.assertEqual(self.hash_of_Test,''.join(HashPath.__split__(self.hash_of_Test, self.hashpath.split_num)))
         
     def test_hashpath_and_count_parts(self):
-        path= self.hash.path('Test',"main",2)
+        path= self.hashpath.path('Test',"main",2)
         self.assertEqual(len(path), len(self.hash_of_Test)+7)
         self.assertEqual(self.hash_of_Test, string.replace(path, '/', '', 7))

@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 '''
 Created on 12.02.2013
 
 @author: thomas
 '''
-#!/usr/bin/env python
+
 
 import getopt
 import os
@@ -12,22 +13,34 @@ import sys
 from fuse import FUSE, Operations, LoggingMixIn
 from getopt import GetoptError
 from io.hashpath import HashPath
-from distutils.log import debug
 
 
 class Cloudestine(LoggingMixIn, Operations):
 
-    def __init__(self, mount,storage,verbose,gnupghome='~/.cloudestine/gpg',
-                 hash_algorithm='sha1',hash_split=4 ) :
+    def __init__(self, verbose, mount,storage,gnupghome='~/.cloudestine/gpg',
+                 hashpath=HashPath('Salt'),hash_split=4 ) :
         self.verbose = verbose
         self.mount = mount
         self.storage = storage
         self.gnupghome = gnupghome 
-        self.hashpath = HashPath("",hash_algorithm,split_num=hash_split)
+        self.hashpath = hashpath
         pass
     
+    def storage_directory(self,path):
+        return self.storage + os.sep + os.path.dirname(path)
+    
+    def storage_filename(self,path):
+        return self.storage + os.sep + path
+        
     def create(self, path, mode, fi=None):
-        debug ("should create %s in mode %s" % (path, str(mode) ) )
+        hashedpath=self.hashpath.path(path)
+        directory = self.storage_directory(hashedpath)
+        filename = self.storage_filename(hashedpath)
+        
+        if not os.path.isdir(directory):
+            if not os.path.exists(directory):
+                os.makedirs(directory) 
+        return os.open(filename, os.O_WRONLY | os.O_CREAT, mode)
         
     @classmethod    
     def usage():
@@ -85,8 +98,11 @@ class Cloudestine(LoggingMixIn, Operations):
                 sys.exit(1)
        
             
-        cloudestine=Cloudestine(mount,storage,gnupghome=gnupghome,
-                                verbose=verbose,hash_algorithm=hash_algorithm)
+        cloudestine=Cloudestine(verbose=verbose,
+                                mount = mount,
+                                storage = storage,
+                                gnupghome=gnupghome,
+                                )
          
         FUSE( cloudestine, mount, foreground=foreground)
 
