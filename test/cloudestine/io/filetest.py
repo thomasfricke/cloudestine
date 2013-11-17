@@ -9,6 +9,10 @@ from cloudestine.io.filename import FileName
 import os
 from cloudestine.io.hashpath import HashPath
 
+import logging
+
+log=logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(message)s',level=logging.DEBUG)
 
 class FileTest(unittest2.TestCase):
 
@@ -25,30 +29,32 @@ class FileTest(unittest2.TestCase):
     
     def test_name(self):
         pass
-        f=FileName(self.tmpdir)
-        f.makedirs('dir/test')
-        assert(os.path.exists('tmp/dir'))
+        f=FileName(self.tmpdir,'dir/test')
+        f.open('w')
+        assert(os.path.isdir('tmp/dir'))
+        assert(os.path.isfile('tmp/dir/test'))
         pass
     
     def test_makedirs_with_HashFileName_and_create_write_and_read_file(self):
-        pass
-        name="Hi"
+  
         hashpath=HashPath("More Salt")
-        hashfile='/'.join(hashpath.path(name))
-
-        filename=FileName(self.tmpdir)
-        filename.makedirs(hashfile)
-        assert(os.path.isdir(os.path.dirname('tmp/'+hashfile)))
+        log.debug("hashpath= %s" % hashpath)
+        hashed_name=hashpath.path("finefile")
+        filename=FileName(self.tmpdir,hashed_name)
+        log.debug("hashed = %s" % filename.filename)
+        filename.makedirs()
+        log.debug("directory = %s" % filename.directory)
+        assert(os.path.isdir(os.path.dirname(filename.directory)))
         
-        f=filename.open(hashfile,'w')
+        f=filename.open('w')
         f.write("fine!")
         f.close()
-        assert(os.path.exists(('tmp/'+hashfile)))
+        assert(os.path.isfile(filename.filename))
         
-        f=filename.open(hashfile,'r')
+        f=filename.open()
         line=f.readline()
         f.close()
-
+        
         assert( line == "fine!")
         pass
     

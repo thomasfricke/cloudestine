@@ -17,21 +17,15 @@ from io.hashpath import HashPath
 
 class Cloudestine(LoggingMixIn, Operations):
 
-    def __init__(self, verbose, mount,storage,gnupghome='~/.cloudestine/gpg',
+    def __init__(self, verbose, mount,base_name,gnupghome='~/.cloudestine/gpg',
                  hashpath=HashPath('Salt'),hash_split=4 ) :
         self.verbose = verbose
         self.mount = mount
-        self.storage = storage
+        self.base_name = base_name
         self.gnupghome = gnupghome 
         self.hashpath = hashpath
         pass
     
-    def storage_directory(self,path):
-        return self.storage + os.sep + os.path.dirname(path)
-    
-    def storage_filename(self,path):
-        return self.storage + os.sep + path
-        
     def create(self, path, mode, fi=None):
         hashedpath=self.hashpath.path(path)
         directory = self.storage_directory(hashedpath)
@@ -58,7 +52,7 @@ class Cloudestine(LoggingMixIn, Operations):
                                         "hash-algorithm=",
                                         "gnupg-home="])
             if len(args) <2:
-                raise GetoptError("mount or storage path missing")
+                raise GetoptError("mount or base_name path missing")
             elif len(args)>3:
                 raise GetoptError("extra args not allowed")
         except getopt.GetoptError as err:
@@ -71,9 +65,8 @@ class Cloudestine(LoggingMixIn, Operations):
         foreground = False
         gnupghome='~/.cloudestine/gpg'
         mount = args[0]
-        storage = args[1]
-        hash_algorithm = 'sha1'
-        
+        base_name = args[1]
+           
         for o, a in opts:
             if o == "-v":
                 verbose = True
@@ -86,13 +79,11 @@ class Cloudestine(LoggingMixIn, Operations):
                 foreground=True
             elif o in ("-f","--gnupg-home"):
                 gnupghome=a
-            elif o in ("-#","--hash-algorithm"):
-                hash_algorithm = a
             else:
                 assert False, "unhandled option"
         
       
-        for pair in ( ("mount", mount),("storage", storage) ): 
+        for pair in ( ("mount", mount),("base_name", base_name) ): 
             if not os.path.isdir(mount):
                 print "%s path %s does not exist or is not a directory" % pair
                 sys.exit(1)
@@ -100,7 +91,7 @@ class Cloudestine(LoggingMixIn, Operations):
             
         cloudestine=Cloudestine(verbose=verbose,
                                 mount = mount,
-                                storage = storage,
+                                base_name = base_name,
                                 gnupghome=gnupghome,
                                 )
          

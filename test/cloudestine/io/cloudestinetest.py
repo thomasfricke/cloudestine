@@ -7,7 +7,7 @@ from time import sleep
 import logging
 
 log=logging.getLogger(__name__)
-logging.basicConfig(format='\n%(levelname)s:%(asctime)s:%(name)s:%(message)s',level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(message)s',level=logging.DEBUG)
 
 
 '''
@@ -28,7 +28,7 @@ class CloudestineTest(unittest2.TestCase):
         super(CloudestineTest, self).__init__(test_name)
         self.basedir='/tmp/cloudestine'
         self.fuse_dir=self.basedir+'/mount'
-        self.storage_dir=self.basedir+'/storage' 
+        self.storage_dir=self.basedir+'/base_name' 
               
     def tearDown(self):
         if self.is_mounted() >0:
@@ -81,7 +81,7 @@ class CloudestineTest(unittest2.TestCase):
     def test_Cloudestine_file_system_start_and_stop(self):
         Cloudestine(True, 
                     mount   = self.fuse_dir,
-                    storage =self.storage_dir)
+                    base_name =self.storage_dir)
         
         self.assertFalse(self.is_mounted(), "should not run" )
    
@@ -102,7 +102,7 @@ class CloudestineTest(unittest2.TestCase):
     def test_Cloudestine_write_read_file(self):
         cloudestine = Cloudestine(True,
                                   mount = self.fuse_dir,
-                                  storage = self.storage_dir) 
+                                  base_name = self.storage_dir) 
 
         fh=cloudestine.open("file", 0x644)
         log.debug(fh)

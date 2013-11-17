@@ -7,15 +7,17 @@ import os
 
 class FileName(object):
     
-    def __init__(self,base):
-        self.base=base
+    def __init__(self,base,path):
+        self.base = base
+        self.path = path
+        self.directory = base + os.sep + os.path.dirname(path)
+        self.filename  = base + os.sep + path
     
-    def makedirs(self,path):
-        directory=os.path.dirname(self.base+"/"+path)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+    def makedirs(self):
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
     
-    def open(self,path,mode='r'):
+    def open(self,mode='r'):
         if mode == 'w':
-            self.makedirs(path)
-        return open(self.base+"/"+path, mode)
+            self.makedirs()
+        return open(self.filename, mode)
