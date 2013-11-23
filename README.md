@@ -31,7 +31,7 @@ have checked out and the FUSEPY directory.
 3. For simplicity we do everything in the cloudestine directory
 
    cd cloudestine
-   export PYTHONPATH=$(PWD)/cloudestine:$FUSEPY
+   export PYTHONPATH=$(PWD)/main:$FUSEPY
    
 4. Run the tests
 
