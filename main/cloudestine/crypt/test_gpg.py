@@ -7,6 +7,9 @@ import unittest2
 import shutil
 import time
 import os
+import logging
+
+log=logging.getLogger(__name__)
 
 from .gpg import Crypt
 
@@ -22,7 +25,7 @@ class CryptTest(unittest2.TestCase):
         pass
     
     def setUp(self):
-        print "create ",self.basedir
+        log.debug("create %s" % self.basedir)
         os.makedirs(self.basedir)
         self.assertTrue(os.path.isdir(self.basedir), "where is my dir")
         pass
@@ -48,7 +51,7 @@ class CryptTest(unittest2.TestCase):
                                               key_length=256).__str__() )
             i+=1
             stop=time.time()
-            print "start=%f stop=%f" %(start,stop)
+            log.debug("time=%f" %(stop-start) )
             self.assertLess(cpuMHz *(stop-start), 20000.0, 
                             "system is to slow, check entropy gathering")
         

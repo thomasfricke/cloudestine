@@ -1,6 +1,6 @@
 import unittest2
 
-from .hashpath import HashPath
+from hashpath import HashPath
 import hashlib
 import string
 class HashTestSha1(unittest2.TestCase):

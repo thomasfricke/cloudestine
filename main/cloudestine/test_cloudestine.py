@@ -7,7 +7,6 @@ from time import sleep
 import logging
 
 log=logging.getLogger(__name__)
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(message)s',level=logging.DEBUG)
 
 
 '''
@@ -68,8 +67,8 @@ class CloudestineTest(unittest2.TestCase):
             if mount_point != self.fuse_dir :
                 continue
           
-            print line
-            print array
+            log.debug("line=%s" % line)
+            log.debug("array=%s" % array.__str__())
 
             found = True
             break

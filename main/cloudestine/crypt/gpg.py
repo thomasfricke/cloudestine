@@ -23,9 +23,7 @@ class Crypt(object):
                                       name_real = "auto generated" ,
                                       passphrase = passphrase,key_type="RSA", 
                                       key_length = key_length)
-        #print auth
         key = self.gpg.gen_key(auth)
-        print key.fingerprint
         with open(self.home+'/'+key.fingerprint,'w') as f:
             f.write(self.gpg.export_keys(key, True))
             f.close
