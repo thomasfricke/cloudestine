@@ -25,6 +25,7 @@ class HashPath(object):
         return digest.hexdigest()
     
     def path(self,name,meta='main',block=0):
-        s=self.separator.join( ( self.salt, name, meta, str(block)  ) )   
-        return os.sep.join(HashPath.__split__( self.hashpath(s), self.split_num ))
+        s=self.separator.join( ( self.salt, name, meta, str(block)  ) ) 
+        splitted=HashPath.__split__(  self.hashpath(s) , self.split_num )
+        return os.sep.join(splitted)
 

@@ -5,6 +5,7 @@ from cloudestine import Cloudestine
 from signal import SIGKILL
 from time import sleep
 import logging
+from dirspec import basedir
 
 log=logging.getLogger(__name__)
 
@@ -20,30 +21,83 @@ import shutil
 
 
 class CloudestineTest(unittest2.TestCase):
-    def unmount(self):
-        os.system("fusermount -u %s" % self.fuse_dir)
-
+    basedir='/tmp/cloudestine'
+    fuse_dir=basedir+'/mount'
+    storage_dir=basedir+'/base_name' 
+    child=-1
+    
+    @classmethod
+    def mount_cloudestine(cls, wait=10):
+        Cloudestine(True, 
+                    mount   = cls.fuse_dir,
+                    base_name =cls.storage_dir)
+        
+        CloudestineTest.child=child=os.fork()
+        
+        if child == 0 :
+            Cloudestine.main([cls.fuse_dir, cls.storage_dir])
+            return
+        
+        CloudestineTest.wait_for_mount_unmount("mount", wait)
+      
+    @classmethod    
+    def unmount_cloudestine(wait=10):
+        os.system("fusermount -u %s" % CloudestineTest.fuse_dir)
+        CloudestineTest.wait_for_mount_unmount("unmount", wait)
+    
+    @classmethod    
+    def wait_for_mount_unmount(cls,mount, wait):
+        count=0
+        while  ( ( CloudestineTest.is_mounted() == ( mount=="unmount" ) ) 
+                 and  ( count < wait ) ):
+            sleep(1)
+            count+=1
+            log.debug("waiting for %s: %d/%d" %(mount,count,wait) )
+        
+        if(count==wait):
+            msg="mount of dir %s failed" % CloudestineTest.fuse_dir
+            log.error(msg)
+            raise Exception(msg)
+        log.debug("filesystem "+ mount+"ed")
+        
     def __init__(self,test_name):
         super(CloudestineTest, self).__init__(test_name)
-        self.basedir='/tmp/cloudestine'
-        self.fuse_dir=self.basedir+'/mount'
-        self.storage_dir=self.basedir+'/base_name' 
-              
+             
     def tearDown(self):
-        if self.is_mounted() >0:
-            self.unmount()
-            if self.child >0 :
-                os.kill(self.child, SIGKILL )
-        if os.path.isdir(self.basedir):
-            shutil.rmtree(self.basedir) 
+        log.debug("start tearDown")
+       
         pass
     
-    def setUp(self):
-        self.child=-1
-        os.makedirs(self.fuse_dir)
-        pass
-    
-    def is_mounted(self):
+    @classmethod
+    def setUpClass(cls):
+        super(CloudestineTest, cls).setUpClass()
+        
+        os.makedirs(CloudestineTest.fuse_dir)
+        assert(os.path.isdir(CloudestineTest.fuse_dir))
+        cls.mount_cloudestine()
+                
+    @classmethod
+    def tearDownClass(cls):
+        CloudestineTest.unmount_cloudestine()       
+        
+        if CloudestineTest.is_mounted() >0:
+            CloudestineTest.unmount_cloudestine()
+            if CloudestineTest.child >0 :
+                os.kill(CloudestineTest.child, SIGKILL )
+        if os.path.isdir(CloudestineTest.basedir):
+            shutil.rmtree(CloudestineTest.basedir) 
+        
+        if os.path.isdir(CloudestineTest.fuse_dir):
+            os.rmdir(CloudestineTest.fuse_dir)
+        
+        
+        log.debug("stop tearDown")
+        if os.path.isdir(CloudestineTest.basedir):
+            os.remove(CloudestineTest.basedir)
+        super(CloudestineTest,cls).tearDownClass()
+           
+    @classmethod
+    def is_mounted(cls):
         found=False
         
         proc_mount=file('/proc/mounts','r')
@@ -56,7 +110,7 @@ class CloudestineTest(unittest2.TestCase):
             (fs, mount_point, fuse)=array[0:3]
             if fs != 'Cloudestine':
                 continue
-            working_directory = self.fuse_dir
+            working_directory = cls.fuse_dir
             
             if mount_point != working_directory:
                 continue
@@ -64,7 +118,7 @@ class CloudestineTest(unittest2.TestCase):
             if fuse != 'fuse':
                 continue
            
-            if mount_point != self.fuse_dir :
+            if mount_point != cls.fuse_dir :
                 continue
           
             log.debug("line=%s" % line)
@@ -77,35 +131,27 @@ class CloudestineTest(unittest2.TestCase):
         
         return found
     
-    def test_Cloudestine_file_system_start_and_stop(self):
-        Cloudestine(True, 
-                    mount   = self.fuse_dir,
-                    base_name =self.storage_dir)
+    def test_Cloudestine_is_mounted(self):
+        log.debug("create_file")
+        self.assertTrue(CloudestineTest.is_mounted(), "should run" )
+               
         
-        self.assertFalse(self.is_mounted(), "should not run" )
-   
-        self.child=os.fork()
-        
-        if self.child == 0 :
-            Cloudestine.main([self.fuse_dir, self.storage_dir])
-            return
-            
-        sleep(2)
-        self.assertTrue(self.is_mounted(), "should run" )
-        
-        self.unmount()       
-        sleep(2)
-        
-        self.assertFalse(self.is_mounted(), "should not run" )
-     
     def test_Cloudestine_write_read_file(self):
-        cloudestine = Cloudestine(True,
-                                  mount = self.fuse_dir,
-                                  base_name = self.storage_dir) 
-
-        fh=cloudestine.open("file", 0x644)
-        log.debug(fh)
         
+        self.assertTrue(CloudestineTest.is_mounted(), "should run" )
+        
+        filename=CloudestineTest.fuse_dir+os.path.sep+ "file"
+        log.debug("opening " + filename)
+       
+        sleep(60)
+        f=open(filename, "rw")
+        self.assertTrue(CloudestineTest.is_mounted(),"should run")
+        self.assertTrue(os.path.exists(filename))
+        content="fine!"
+        f.write(content)
+        f.close()
+        log.debug(f)
+      
         
 if __name__ == "__main__":
     unittest2.main()

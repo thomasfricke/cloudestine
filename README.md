@@ -19,7 +19,7 @@ This is the directory where you checked out
 
    git clone  https://github.com/terencehonles/fusepy.git
 
-   FUSEPY=$(PWD)/fusepy
+   FUSEPY=$PWD/fusepy
    
 Set the Python path to the cloudestine directory where you 
 have checked out and the FUSEPY directory.
@@ -31,7 +31,7 @@ have checked out and the FUSEPY directory.
 3. For simplicity we do everything in the cloudestine directory
 
    cd cloudestine
-   export PYTHONPATH=$(PWD)/main:$FUSEPY
+   export PYTHONPATH=$PWD/main:$FUSEPY
    
 4. Run the tests
 

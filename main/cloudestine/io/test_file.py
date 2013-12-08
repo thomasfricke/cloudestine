@@ -46,16 +46,17 @@ class FileTest(unittest2.TestCase):
         assert(os.path.isdir(os.path.dirname(filename.directory)))
         
         f=filename.open('w')
-        f.write("fine!")
+        f.write("fine!\nfiner!\nfinest!")
         f.close()
         assert(os.path.isfile(filename.filename))
         
         f=filename.open()
-        line=f.readline()
+        content=f.read()
         f.close()
         
-        assert( line == "fine!")
+        assert( content == "fine!\nfiner!\nfinest!")
         pass
+    
     
 
 if __name__ == "__main__":
