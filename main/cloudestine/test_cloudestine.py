@@ -7,8 +7,8 @@ from time import sleep
 import logging
 from dirspec import basedir
 
+logging.basicConfig()
 log=logging.getLogger(__name__)
-
 
 '''
 Created on 05.02.2013
@@ -18,10 +18,10 @@ Created on 05.02.2013
 import os
 import shutil
 
-
+basedir='/tmp/cloudestine'
 
 class CloudestineTest(unittest2.TestCase):
-    basedir='/tmp/cloudestine'
+    
     fuse_dir=basedir+'/mount'
     storage_dir=basedir+'/base_name' 
     child=-1
@@ -72,12 +72,34 @@ class CloudestineTest(unittest2.TestCase):
     def setUpClass(cls):
         super(CloudestineTest, cls).setUpClass()
         
+        if os.path.isdir(basedir):
+            shutil.rmtree(basedir,ignore_errors=True)
+        
         os.makedirs(CloudestineTest.fuse_dir)
+        os.makedirs(CloudestineTest.storage_dir)
         assert(os.path.isdir(CloudestineTest.fuse_dir))
         cls.mount_cloudestine()
-                
+    
+    @classmethod
+    def list_cloudestinedir_recursively(clazz):
+        for dirname, dirnames, filenames in os.walk(basedir):
+        # print path to all subdirectories first.
+            for subdirname in dirnames:
+                log.debug( os.path.join(dirname, subdirname) )
+        
+            # print path to all filenames.
+            for filename in filenames:
+                log.debug(  os.path.join(dirname, filename) )
+        
+            # Advanced usage:
+            # editing the 'dirnames' list will stop os.walk() from recursing into there.
+            if '.git' in dirnames:
+                # don't go into any .git directories.
+                dirnames.remove('.git')
+                    
     @classmethod
     def tearDownClass(cls):
+        CloudestineTest.list_cloudestinedir_recursively()
         CloudestineTest.unmount_cloudestine()       
         
         if CloudestineTest.is_mounted() >0:
@@ -87,13 +109,15 @@ class CloudestineTest(unittest2.TestCase):
         if os.path.isdir(CloudestineTest.basedir):
             shutil.rmtree(CloudestineTest.basedir) 
         
-        if os.path.isdir(CloudestineTest.fuse_dir):
-            os.rmdir(CloudestineTest.fuse_dir)
+        for directory in [CloudestineTest.fuse_dir, CloudestineTest.storage_dir]:
+            if os.path.isdir(directory):
+                os.rmdir(directory)
         
+        if os.path.isdir(basedir):
+            shutil.rmtree(basedir,ignore_errors=True)
         
         log.debug("stop tearDown")
-        if os.path.isdir(CloudestineTest.basedir):
-            os.remove(CloudestineTest.basedir)
+        
         super(CloudestineTest,cls).tearDownClass()
            
     @classmethod
@@ -139,12 +163,13 @@ class CloudestineTest(unittest2.TestCase):
     def test_Cloudestine_write_read_file(self):
         
         self.assertTrue(CloudestineTest.is_mounted(), "should run" )
+        self.assertTrue(os.path.isdir(CloudestineTest.fuse_dir))
         
         filename=CloudestineTest.fuse_dir+os.path.sep+ "file"
         log.debug("opening " + filename)
-       
-        sleep(60)
-        f=open(filename, "rw")
+        f=open(filename, "a")
+        log.debug("open")
+        
         self.assertTrue(CloudestineTest.is_mounted(),"should run")
         self.assertTrue(os.path.exists(filename))
         content="fine!"

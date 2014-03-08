@@ -27,5 +27,5 @@ class HashPath(object):
     def path(self,name,meta='main',block=0):
         s=self.separator.join( ( self.salt, name, meta, str(block)  ) ) 
         splitted=HashPath.__split__(  self.hashpath(s) , self.split_num )
-        return os.sep.join(splitted)
+        return os.path.sep.join(splitted)
 

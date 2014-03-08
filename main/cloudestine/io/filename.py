@@ -10,8 +10,8 @@ class FileName(object):
     def __init__(self,base,path):
         self.base = base
         self.path = path
-        self.directory = base + os.sep + os.path.dirname(path)
-        self.filename  = base + os.sep + path
+        self.directory = base + os.path.sep + os.path.dirname(path)
+        self.filename  = base + os.path.sep + path
     
     def makedirs(self):
         if not os.path.exists(self.directory):
