@@ -2,6 +2,13 @@ Cloudestine
 ===========
 Cloud ready fuse filesystem with strong cryptographic capabilities
 
+State of the project:
+Starting, at the moment only creation of files works, not even 
+reading or writing into them.
+
+This is a major step forward because the basic understanding of 
+the Fuse structure looks promising and faster progress. 
+
 Design goals:
 
 - no private data is unencrypted in the storage directory
