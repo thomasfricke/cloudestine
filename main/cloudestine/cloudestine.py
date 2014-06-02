@@ -13,10 +13,11 @@ import logging
 from fuse import FUSE, Operations, LoggingMixIn
 from getopt import GetoptError
 from io.hashpath import HashPath
+from stat import S_IFREG, S_IFDIR
 
 log=logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(funcName)s:%(message)s',
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(funcName)s:%(lineno)d:%(message)s',
                     level=logging.DEBUG)
 
 class Cloudestine(LoggingMixIn, Operations):
@@ -71,15 +72,28 @@ class Cloudestine(LoggingMixIn, Operations):
             dirents.extend(os.listdir(filename))
         for r in dirents:
             yield r
-            
+    """
+    helper function to turn integer flags into string
+    """
+    def flag2mode(self,flags):
+        md = {os.O_RDONLY: 'r', os.O_WRONLY: 'w', os.O_RDWR: 'w+'}
+        m = md[flags & (os.O_RDONLY | os.O_WRONLY | os.O_RDWR)]
+
+        if flags | os.O_APPEND:
+            m = m.replace('w', 'a', 1)
+       
+        return m
+
     """
     open a file
     """
     def open(self, path, mode):
         log.debug("open: %s" % path)
         filename=self.filename_create_dirs_for_path_and_block(path)
-        
-        return open(filename,'a')
+        log.debug("map to %s, mode %d, flag2mode %s" % ( filename, mode, self.flag2mode(mode)))
+        fh=open(filename,self.flag2mode(mode))
+        log.debug("fh %s" % fh.__str__())
+        return fh.fileno()
         self.fd+=1
         return self.fd
     """
@@ -90,7 +104,7 @@ class Cloudestine(LoggingMixIn, Operations):
         return self.open(path, mode | os.O_WRONLY | os.O_CREAT)
     
     def statfs(self, path):
-        log.debug("statfs: %s" %path)
+        log.debug("path=%s" %path)
         hashedpath=self.hashpath.path(path,block=0)
         filename = self.storage_filename(hashedpath)
         #stv = os.statvfs(filename)
@@ -98,6 +112,13 @@ class Cloudestine(LoggingMixIn, Operations):
         return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree',
             'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files', 'f_flag',
             'f_frsize', 'f_namemax'))
+    
+    def getattr(self, path, fh=None):
+        log.debug("path=%s" % path)
+        if path=="/":
+            return dict(st_mode=(S_IFDIR | 0755), st_nlink=2)
+        else:
+            return dict(st_mode=(S_IFREG | 0755), st_nlink=2)
         
     def flush(self, path, fh):
         return os.fsync(fh)
@@ -106,17 +127,18 @@ class Cloudestine(LoggingMixIn, Operations):
         return os.fsync(fh)
     
     def write(self, path, data, offset, fh):
-        log.debug("write %s" % path)
+        log.debug("write %s data %s offset %d fh %d" % (path, data, offset, fh))
 #        block = offset / self.blocksize
 #        hashfile_offset = offset % self.blocksize
         
-        filename=self.filename_create_dirs_for_path_and_block(path)         
-        f=open(filename)
+        filename=self.filename_create_dirs_for_path_and_block(path)     
+        log.debug("filename %s" % filename)    
+        f=open(filename,'a')
         f.write(data)
-        print data
+        log.debug("data %s" % data)
         return len(data)
     
-    
+      
     @classmethod    
     def usage(clazz):
         print """

@@ -18,10 +18,11 @@ Created on 05.02.2013
 import os
 import shutil
 
-basedir='/tmp/cloudestine'
+
 
 class CloudestineTest(unittest2.TestCase):
     
+    basedir='/tmp/cloudestine'
     fuse_dir=basedir+'/mount'
     storage_dir=basedir+'/base_name' 
     child=-1
@@ -72,8 +73,8 @@ class CloudestineTest(unittest2.TestCase):
     def setUpClass(cls):
         super(CloudestineTest, cls).setUpClass()
         
-        if os.path.isdir(basedir):
-            shutil.rmtree(basedir,ignore_errors=True)
+        if os.path.isdir(CloudestineTest.basedir):
+            shutil.rmtree(CloudestineTest.basedir,ignore_errors=True)
         
         os.makedirs(CloudestineTest.fuse_dir)
         os.makedirs(CloudestineTest.storage_dir)
