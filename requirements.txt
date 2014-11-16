@@ -1,3 +1,4 @@
 unittest2
 fusepy
+gnupg
 #dirspec==13.05
