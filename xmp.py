@@ -23,7 +23,7 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 logging.logThreads = 0
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(funcName)s:%(lineno)d:%(message)s',
+logging.basicConfig(filename="xmp.log", format='%(levelname)s:%(asctime)s:%(name)s:%(funcName)s:%(lineno)d:%(message)s',
                     level=logging.DEBUG)
 
 if not hasattr(fuse, '__version__'):
@@ -67,6 +67,14 @@ class Xmp(Fuse):
 #            time.sleep(120)
 #            print "mythread: ticking"
 
+#
+# returns a posix.stat_result structure, initialises by a seqence
+#
+# s=posix.stat_result((33188,4050, 64513L, 1, 0, 0, 2324, 1414588643, 1414588643, 1414588643))
+# s
+# posix.stat_result(st_mode=33188, st_ino=4050, st_dev=64513L, st_nlink=1, st_uid=0, 
+# st_gid=0, st_size=2324, st_atime=1414588643, st_mtime=1414588643, st_ctime=1414588643)
+#
     def getattr(self, path):
         log.debug("path %s" % path)
         return os.lstat("." + path)

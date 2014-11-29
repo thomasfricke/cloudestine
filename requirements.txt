@@ -1,4 +1,3 @@
 unittest2
-fusepy
+fuse-python
 gnupg
-#dirspec==13.05
