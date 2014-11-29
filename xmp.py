@@ -23,7 +23,9 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 logging.logThreads = 0
-logging.basicConfig(filename="xmp.log", format='%(levelname)s:%(asctime)s:%(name)s:%(funcName)s:%(lineno)d:%(message)s',
+logging.basicConfig(filename="xmp.log", 
+		    format='%(levelname)s:%(asctime)s.%(msecs)d:%(funcName)s:%(lineno)d:%(message)s',
+		    datefmt="%H:%M:%S",
                     level=logging.DEBUG)
 
 if not hasattr(fuse, '__version__'):
@@ -77,10 +79,14 @@ class Xmp(Fuse):
 #
     def getattr(self, path):
         log.debug("path %s" % path)
-        return os.lstat("." + path)
+        lstat=os.lstat("." + path)
+        log.debug("lstat %s" % lstat)
+        return lstat
 
     def readlink(self, path):
         log.debug("path %s" % path)
+        rl=os.readlink("." + path)
+        log.debug("readlink %s" % rl)
         return os.readlink("." + path)
 
     def readdir(self, path, offset):
@@ -131,7 +137,7 @@ class Xmp(Fuse):
         os.mkdir("." + path, mode)
 
     def utime(self, path, times):
-        log.debug("path %s times %d" % (path, times))
+        log.debug("path %s times %s" % (path, times))
         os.utime("." + path, times)
 
 #    The following utimens method would do the same as the above utime method.
@@ -195,10 +201,13 @@ class Xmp(Fuse):
     class XmpFile(object):
 
         def __init__(self, path, flags, *mode):
+	    log.debug("file path %s flags %s mode %s " % ( path, flags, mode))
             self.file = os.fdopen(os.open("." + path, flags, *mode),
                                   flag2mode(flags))
             self.fd = self.file.fileno()
-
+            
+            log.debug("file %s fd %d" % (self.file, self.fd))
+            
             self.path = path
             self.flags = flags
 
@@ -219,7 +228,7 @@ class Xmp(Fuse):
             return len(buf)
 
         def release(self, flags):
-            log.debug("file %s flags %d" % (self.path, flags))
+            log.debug("file %s flags %d\n" % (self.path, flags))
             self.file.close()
 
         def _fflush(self):
@@ -298,7 +307,6 @@ class Xmp(Fuse):
 
 
 def main():
-
     usage = """
 Userspace nullfs-alike: mirror the filesystem tree from some point on.
 
