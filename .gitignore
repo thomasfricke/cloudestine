@@ -1,4 +1,7 @@
+.gitignore
 *.pyc
 *.py,cover
 .settings
 venv
+testdir
+rootdir

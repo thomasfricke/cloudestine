@@ -18,15 +18,8 @@ except ImportError:
     pass
 import fuse
 from fuse import Fuse
-import logging
-
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-logging.logThreads = 0
-logging.basicConfig(filename="xmp.log", 
-		    format='%(levelname)s:%(asctime)s.%(msecs)d:%(funcName)s:%(lineno)d:%(message)s',
-		    datefmt="%H:%M:%S",
-                    level=logging.DEBUG)
+from logger import log
+from hashpath import HashPath
 
 if not hasattr(fuse, '__version__'):
     raise RuntimeError, \
@@ -214,15 +207,22 @@ class Xmp(Fuse):
             self.direct_io = 0
             self.keep_cache = 0
 
-
+	    self.hashpath=HashPath("Salt")
 
         def read(self, length, offset):
-            log.debug("file %s length %d offset %d" % (self.path, length, offset))
-            self.file.seek(offset)
+            log.debug("file %s length %d offset %d mod %d" % (self.path, length, offset,offset % 4096))
+            log.debug("hashpath %s" % self.hashpath.path(self.path,block=offset))
+	    log.debug("hashpath+%s" % self.hashpath.path(self.path,block=offset+4096))
+	    
+	    self.file.seek(offset)
             return self.file.read(length)
 
         def write(self, buf, offset):
-            log.debug("file %s length of buf %d offset %d" % (self.path, len(buf), offset))
+            log.debug("file %s length of buf %d offset %d mod %d" % (self.path, len(buf), offset, offset % 4096))
+            log.debug("hashpath %s" % self.hashpath.path(self.path,block=offset))
+	    log.debug("hashpath+%s" % self.hashpath.path(self.path,block=offset+4096))
+
+		      
             self.file.seek(offset)
             self.file.write(buf)
             return len(buf)
