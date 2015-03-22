@@ -1,3 +1,4 @@
-unittest2
 fuse-python
 gnupg
+nose
+unittest2

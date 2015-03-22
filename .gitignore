@@ -3,5 +3,5 @@
 *.py,cover
 .settings
 venv
-testdir
 rootdir
+mountdir

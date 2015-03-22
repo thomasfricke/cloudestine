@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#    Copyright (C) 2001  Jeff Epler  <jepler@unpythonic.dhs.org>
+# Copyright (C) 2001  Jeff Epler  <jepler@unpythonic.dhs.org>
 #    Copyright (C) 2006  Csaba Henk  <csaba.henk@creo.hu>
 #
 #    This program can be distributed under the terms of the GNU LGPL.
@@ -41,7 +41,6 @@ def flag2mode(flags):
 
 
 class Xmp(Fuse):
-
     def __init__(self, *args, **kw):
 
         Fuse.__init__(self, *args, **kw)
@@ -51,34 +50,34 @@ class Xmp(Fuse):
         #thread.start_new_thread(self.mythread, ())
         self.root = '/'
 
-#    def mythread(self):
-#
-#        """
-#        The beauty of the FUSE python implementation is that with the python interp
-#        running in foreground, you can have threads
-#        """
-#        print "mythread: started"
-#        while 1:
-#            time.sleep(120)
-#            print "mythread: ticking"
+    #    def mythread(self):
+    #
+    #        """
+    #        The beauty of the FUSE python implementation is that with the python interp
+    #        running in foreground, you can have threads
+    #        """
+    #        print "mythread: started"
+    #        while 1:
+    #            time.sleep(120)
+    #            print "mythread: ticking"
 
-#
-# returns a posix.stat_result structure, initialises by a seqence
-#
-# s=posix.stat_result((33188,4050, 64513L, 1, 0, 0, 2324, 1414588643, 1414588643, 1414588643))
-# s
-# posix.stat_result(st_mode=33188, st_ino=4050, st_dev=64513L, st_nlink=1, st_uid=0, 
-# st_gid=0, st_size=2324, st_atime=1414588643, st_mtime=1414588643, st_ctime=1414588643)
-#
+    #
+    # returns a posix.stat_result structure, initialises by a seqence
+    #
+    # s=posix.stat_result((33188,4050, 64513L, 1, 0, 0, 2324, 1414588643, 1414588643, 1414588643))
+    # s
+    # posix.stat_result(st_mode=33188, st_ino=4050, st_dev=64513L, st_nlink=1, st_uid=0,
+    # st_gid=0, st_size=2324, st_atime=1414588643, st_mtime=1414588643, st_ctime=1414588643)
+    #
     def getattr(self, path):
         log.debug("path %s" % path)
-        lstat=os.lstat("." + path)
+        lstat = os.lstat("." + path)
         log.debug("lstat %s" % lstat)
         return lstat
 
     def readlink(self, path):
         log.debug("path %s" % path)
-        rl=os.readlink("." + path)
+        rl = os.readlink("." + path)
         log.debug("readlink %s" % rl)
         return os.readlink("." + path)
 
@@ -133,37 +132,37 @@ class Xmp(Fuse):
         log.debug("path %s times %s" % (path, times))
         os.utime("." + path, times)
 
-#    The following utimens method would do the same as the above utime method.
-#    We can't make it better though as the Python stdlib doesn't know of
-#    subsecond preciseness in acces/modify times.
-#  
-#    def utimens(self, path, ts_acc, ts_mod):
-#      os.utime("." + path, (ts_acc.tv_sec, ts_mod.tv_sec))
+    #    The following utimens method would do the same as the above utime method.
+    #    We can't make it better though as the Python stdlib doesn't know of
+    #    subsecond preciseness in acces/modify times.
+    #
+    #    def utimens(self, path, ts_acc, ts_mod):
+    #      os.utime("." + path, (ts_acc.tv_sec, ts_mod.tv_sec))
 
     def access(self, path, mode):
         log.debug("path %s mode %d" % ( path, mode))
         if not os.access("." + path, mode):
             return -EACCES
 
-#    This is how we could add stub extended attribute handlers...
-#    (We can't have ones which aptly delegate requests to the underlying fs
-#    because Python lacks a standard xattr interface.)
-#
-#    def getxattr(self, path, name, size):
-#        val = name.swapcase() + '@' + path
-#        if size == 0:
-#            # We are asked for size of the value.
-#            return len(val)
-#        return val
-#
-#    def listxattr(self, path, size):
-#        # We use the "user" namespace to please XFS utils
-#        aa = ["user." + a for a in ("foo", "bar")]
-#        if size == 0:
-#            # We are asked for size of the attr list, ie. joint size of attrs
-#            # plus null separators.
-#            return len("".join(aa)) + len(aa)
-#        return aa
+        #    This is how we could add stub extended attribute handlers...
+        #    (We can't have ones which aptly delegate requests to the underlying fs
+        #    because Python lacks a standard xattr interface.)
+        #
+        #    def getxattr(self, path, name, size):
+        #        val = name.swapcase() + '@' + path
+        #        if size == 0:
+        #            # We are asked for size of the value.
+        #            return len(val)
+        #        return val
+        #
+        #    def listxattr(self, path, size):
+        #        # We use the "user" namespace to please XFS utils
+        #        aa = ["user." + a for a in ("foo", "bar")]
+        #        if size == 0:
+        #            # We are asked for size of the attr list, ie. joint size of attrs
+        #            # plus null separators.
+        #            return len("".join(aa)) + len(aa)
+        #        return aa
 
     def statfs(self):
         """
@@ -194,35 +193,34 @@ class Xmp(Fuse):
     class XmpFile(object):
 
         def __init__(self, path, flags, *mode):
-	    log.debug("file path %s flags %s mode %s " % ( path, flags, mode))
+            log.debug("file path %s flags %s mode %s " % ( path, flags, mode))
             self.file = os.fdopen(os.open("." + path, flags, *mode),
                                   flag2mode(flags))
             self.fd = self.file.fileno()
-            
+
             log.debug("file %s fd %d" % (self.file, self.fd))
-            
+
             self.path = path
             self.flags = flags
 
             self.direct_io = 0
             self.keep_cache = 0
 
-	    self.hashpath=HashPath("Salt")
+            self.hashpath = HashPath("Salt")
 
         def read(self, length, offset):
-            log.debug("file %s length %d offset %d mod %d" % (self.path, length, offset,offset % 4096))
-            log.debug("hashpath %s" % self.hashpath.path(self.path,block=offset))
-	    log.debug("hashpath+%s" % self.hashpath.path(self.path,block=offset+4096))
-	    
-	    self.file.seek(offset)
+            log.debug("file %s length %d offset %d mod %d" % (self.path, length, offset, offset % self.hashpath.block_size))
+            log.debug("hashpath %s" % self.hashpath.path(self.path, block=offset))
+            log.debug("hashpath+%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
+
+            self.file.seek(offset)
             return self.file.read(length)
 
         def write(self, buf, offset):
-            log.debug("file %s length of buf %d offset %d mod %d" % (self.path, len(buf), offset, offset % 4096))
-            log.debug("hashpath %s" % self.hashpath.path(self.path,block=offset))
-	    log.debug("hashpath+%s" % self.hashpath.path(self.path,block=offset+4096))
+            log.debug("file %s length of buf %d offset %d mod %d" % (self.path, len(buf), offset, offset % self.hashpath.block_size))
+            log.debug("hashpath %s" % self.hashpath.path(self.path, block=offset))
+            log.debug("hashpath+%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
 
-		      
             self.file.seek(offset)
             self.file.write(buf)
             return len(buf)
@@ -283,9 +281,9 @@ class Xmp(Fuse):
 
             # Convert fcntl-ish lock parameters to Python's weird
             # lockf(3)/flock(2) medley locking API...
-            op = { fcntl.F_UNLCK : fcntl.LOCK_UN,
-                   fcntl.F_RDLCK : fcntl.LOCK_SH,
-                   fcntl.F_WRLCK : fcntl.LOCK_EX }[kw['l_type']]
+            op = {fcntl.F_UNLCK: fcntl.LOCK_UN,
+                  fcntl.F_RDLCK: fcntl.LOCK_SH,
+                  fcntl.F_WRLCK: fcntl.LOCK_EX}[kw['l_type']]
             if cmd == fcntl.F_GETLK:
                 return -EOPNOTSUPP
             elif cmd == fcntl.F_SETLK:
