@@ -18,7 +18,6 @@ class Mount():
         pass
 
     def unmount(self):
-        print("fusermount -u %s" % self.mountdir)
         return os.system("fusermount -u %s" % self.mountdir)
 
     def wait_for_mount(self,mounted=True):
