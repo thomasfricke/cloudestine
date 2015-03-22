@@ -1,28 +1,15 @@
 __author__ = 'thomas'
 
-import unittest2 as unittest
-import sys, os
-from xmp import main
-from time import sleep
+import os
 from logger import log
-
 class Mount():
 
-    def __init__(self):
+    def __init__(self,path,module,rootdir,mountdir):
+        self.path = path
+        self.module = module
+        self.rootdir   = rootdir
+        self.mountdir  = mountdir
         pass
-
-class MountXMPCase(unittest.TestCase):
-
-    def setUp(self):
-        self.path   = os.path.dirname(os.path.realpath(__file__))
-        self.module = "xmp.py"
-        self.rootdir   = "%s/rootdir" % self.path
-        self.mountdir  = "%s/mountdir" % self.path
-        self.assertNotEqual(self.rootdir,self.mountdir)
-        self.assertTrue(os.path.exists(self.rootdir))
-        self.assertTrue(os.path.exists(self.mountdir))
-        log.debug(sys.argv)
-
 
     def mount(self):
         return os.system("%s/%s -o root=%s %s" %(self.path, self.module, self.rootdir, self.mountdir))
@@ -42,14 +29,6 @@ class MountXMPCase(unittest.TestCase):
                 print("sleep for 1s")
                 sleep(1)
         return False
-
-    def test_mount_and_unmount(self):
-        self.assertEqual(0,self.mount())
-        self.assertTrue(self.wait_for_mount())
-#        sleep(0)
-        self.assertEqual(0,self.unmount())
-        self.assertTrue(self.wait_for_mount(False))
-
 
     def is_mounted(self):
 
@@ -77,6 +56,3 @@ class MountXMPCase(unittest.TestCase):
             return True
 
         return False
-
-if __name__ == '__main__':
-    unittest.main()
