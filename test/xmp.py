@@ -72,6 +72,8 @@ class Xmp(Fuse):
     def getattr(self, path):
         log.debug("path %s" % path)
         lstat = os.lstat("." + path)
+        hashpath=HashPath("Salt")
+        lstat = os.lstat(hashpath.path(path))
         log.debug("lstat %s" % lstat)
         return lstat
 
@@ -89,6 +91,29 @@ class Xmp(Fuse):
     def unlink(self, path):
         log.debug("path %s" % path)
         os.unlink("." + path)
+        hashpath=HashPath("Salt")
+        dir, full = hashpath.path(path)
+        os.unlink(full)
+        self.unlink_empty_dirs(dir)
+
+    def unlink_empty_dirs(self,dir):
+
+        n=dir.rfind(os.path.sep)
+
+        while True:
+            try:
+                log.debug("n=%d l=%d" %(n,len(dir)))
+                os.rmdir(dir)
+                log.debug(dir)
+                if n == -1: break
+            except OSError as ex:
+                if ex.errno == ENOTEMPTY:
+                    break
+                else:
+                    raise
+            dir=dir[:n]
+            n=dir.rfind(os.path.sep)
+
 
     def rmdir(self, path):
         log.debug("path %s" % path)
@@ -210,16 +235,32 @@ class Xmp(Fuse):
 
         def read(self, length, offset):
             log.debug("file %s length %d offset %d mod %d" % (self.path, length, offset, offset % self.hashpath.block_size))
-            log.debug("hashpath %s" % self.hashpath.path(self.path, block=offset))
-            log.debug("hashpath+%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
+            dir, full = self.hashpath.path(self.path, block=offset)
+            log.debug("hashpath %s/%s" % (dir,full))
+#            log.debug("hashpath+%s/%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
+            hash_file=open(full)
+            return hash_file.read(length)
 
             self.file.seek(offset)
             return self.file.read(length)
 
         def write(self, buf, offset):
             log.debug("file %s length of buf %d offset %d mod %d" % (self.path, len(buf), offset, offset % self.hashpath.block_size))
-            log.debug("hashpath %s" % self.hashpath.path(self.path, block=offset))
-            log.debug("hashpath+%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
+            dir, full = self.hashpath.path(self.path, block=offset)
+            log.debug("hashpath %s %s" % (dir,full))
+            try:
+                try:
+                    os.makedirs(dir)
+                except OSError as exception:
+                    if exception.errno != EEXIST or not os.path.isdir(dir):
+                        raise
+
+                log.debug("dir created")
+                hash_file=open(full,"w")
+                hash_file.write(buf)
+                hash_file.close()
+            except IOError as ex:
+                log.error("could not write data" % ex.message)
 
             self.file.seek(offset)
             self.file.write(buf)

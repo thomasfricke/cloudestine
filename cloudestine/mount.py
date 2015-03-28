@@ -2,6 +2,8 @@ __author__ = 'thomas'
 
 import os
 from logger import log
+from time import sleep
+
 class Mount():
 
     def __init__(self,path,module,rootdir,mountdir):
@@ -11,14 +13,23 @@ class Mount():
         self.mountdir  = mountdir
         pass
 
-    def mount(self):
-        return os.system("%s/%s -o root=%s %s" %(self.path, self.module, self.rootdir, self.mountdir))
+    def mount(self,retry=3):
+        for i in range(retry):
+            result = os.system("%s/%s -o root=%s %s" %(self.path, self.module, self.rootdir, self.mountdir))
+            if result:
+                self.unmount()
+                sleep(1)
+            else:
+                return 0
+        return result
 
-    def tearDown(self):
-        pass
+    def unmount(self,retry=3):
 
-    def unmount(self):
-        return os.system("fusermount -u %s" % self.mountdir)
+        for i in range(retry):
+            result = os.system("fusermount -u %s" % self.mountdir)
+            if result == 0: return 0
+
+        return result
 
     def wait_for_mount(self,mounted=True):
         for i in range(10):
@@ -27,6 +38,7 @@ class Mount():
             else:
                 print("sleep for 1s")
                 sleep(1)
+
         return False
 
     def is_mounted(self):

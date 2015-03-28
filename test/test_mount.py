@@ -8,6 +8,7 @@ from logger import log
 from cloudestine.mount import Mount
 import random
 from filecmp import cmp
+from hashpath import HashPath
 
 class MountXMPCase(unittest.TestCase):
 
@@ -43,28 +44,9 @@ class MountXMPCase(unittest.TestCase):
         """
         pass
 
-
-
-    def test_write_to_root_and_read_from_mount(self):
-        basename="testfile"
-        root_filename="%s/%s" % (self.mount.rootdir,basename)
-        mount_filename="%s/%s" % (self.mount.mountdir,basename)
-
-        root_file=file(root_filename,"w+")
-
-        value=random.random()
-        root_file.write("%f\n" % value)
-        root_file.close()
-
-        self.assertTrue(cmp(root_filename,mount_filename))
-
-        os.remove(root_filename)
-
-        self.assertFalse(os._exists(mount_filename))
-
     def test_write_to_mount_and_read_from_root(self):
         basename="testfile"
-        root_filename="%s/%s" % (self.mount.rootdir,basename)
+
         mount_filename="%s/%s" % (self.mount.mountdir,basename)
 
         mount_file=file(mount_filename,"w+")
@@ -72,11 +54,15 @@ class MountXMPCase(unittest.TestCase):
         value=random.random()
         mount_file.write("%f\n" % value)
         mount_file.close()
+        hashpath=HashPath("Salt")
+        dir, full = hashpath.path("/"+basename,block=0)
+        root_filename="%s/%s" % (self.mount.rootdir,full)
 
         self.assertTrue(cmp(root_filename,mount_filename))
-
+#        from time import sleep
+#        sleep(100)
         os.remove(mount_filename)
-        self.assertFalse(os._exists(root_filename))
+        self.assertFalse(os.path.exists(root_filename))
 
 
 

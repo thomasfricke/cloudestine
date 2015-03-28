@@ -5,3 +5,4 @@
 venv
 test/rootdir
 test/mountdir
+.idea

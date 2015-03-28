@@ -4,6 +4,8 @@ class to map filenames and paths to hashes
 '''
 import hashlib
 import os
+from logger import log
+
 class HashPath(object):
           
 
@@ -25,9 +27,13 @@ class HashPath(object):
     def hashpath(self,s):
         digest = self.algorithm(s)
         return digest.hexdigest()
-    
+
     def path(self,name,meta='main',block=0):
         s=self.separator.join( ( self.salt, name, meta, str( block - block % self.block_size ) ) )
         splitted=HashPath.__split__(  self.hashpath(s) , self.split_num )
-        return os.path.sep.join(splitted)
-
+        log.debug("splitted %s" % splitted)
+        dir = os.path.sep.join(splitted[:-1])
+        full= dir + os.path.sep + splitted[-1]
+        log.debug("full %s" %full)
+        log.debug("dir %s" %dir)
+        return dir, full
