@@ -90,7 +90,8 @@ class Xmp(Fuse):
 
     def readdir(self, path, offset):
         log.debug("path %s" % path)
-        for e in os.listdir("." + path):
+        for e in ["testfile"]: # os.listdir("." + path):
+            log.debug("entry = %s" % e)
             yield fuse.Direntry(e)
 
     def unlink(self, path):
@@ -146,6 +147,9 @@ class Xmp(Fuse):
 
     def truncate(self, path, len):
         log.debug("path %s len %d" % (path, len ))
+        hashpath=HashPath("Salt")
+        dir, full = hashpath.path(path)
+#        f = open(full, "a")
         f = open("." + path, "a")
         f.truncate(len)
         f.close()
@@ -224,11 +228,24 @@ class Xmp(Fuse):
 
         def __init__(self, path, flags, *mode):
             log.debug("file path %s flags %s mode %s " % ( path, flags, mode))
-            self.file = os.fdopen(os.open("." + path, flags, *mode),
-                                  flag2mode(flags))
-            self.fd = self.file.fileno()
+#            self.file = os.fdopen(os.open("." + path, flags, *mode),
+#                                  flag2mode(flags))
 
-            log.debug("file %s fd %d" % (self.file, self.fd))
+
+#            self.fd = self.file.fileno()
+
+#            log.debug("file %s fd %d" % (self.file, self.fd))
+
+            self.hashpath = HashPath("Salt")
+
+            dir, full = self.hashpath.path(path)
+            log.debug("dir=%s full= %s" %(dir,full))
+
+            self.makedirs(dir)
+
+            self.file = os.fdopen(os.open(full, flags, *mode),
+                                   flag2mode(flags))
+            self.fd = self.file.fileno()
 
             self.path = path
             self.flags = flags
@@ -236,10 +253,10 @@ class Xmp(Fuse):
             self.direct_io = 0
             self.keep_cache = 0
 
-            self.hashpath = HashPath("Salt")
+
 
         def read(self, length, offset):
-            log.debug("file %s length %d offset %d mod %d" % (self.path, length, offset, offset % self.hashpath.block_size))
+            log.debug("file=%s length %d offset %d mod %d" % (self.path, length, offset, offset % self.hashpath.block_size))
             dir, full = self.hashpath.path(self.path, block=offset)
             log.debug("hashpath %s/%s" % (dir,full))
 #            log.debug("hashpath+%s/%s" % self.hashpath.path(self.path, block=offset + self.hashpath.block_size))
@@ -249,16 +266,21 @@ class Xmp(Fuse):
             self.file.seek(offset)
             return self.file.read(length)
 
+        def makedirs(self,dir):
+            log.debug("dir=%s" % dir )
+            try:
+                os.makedirs(dir)
+            except OSError as exception:
+                log.debug("%s" % exception)
+                if exception.errno != EEXIST or not os.path.isdir(dir):
+                    raise
+
         def write(self, buf, offset):
             log.debug("file %s length of buf %d offset %d mod %d" % (self.path, len(buf), offset, offset % self.hashpath.block_size))
             dir, full = self.hashpath.path(self.path, block=offset)
             log.debug("hashpath %s %s" % (dir,full))
             try:
-                try:
-                    os.makedirs(dir)
-                except OSError as exception:
-                    if exception.errno != EEXIST or not os.path.isdir(dir):
-                        raise
+                self.makedirs(dir)
 
                 log.debug("dir created")
                 hash_file=open(full,"w")
@@ -267,8 +289,8 @@ class Xmp(Fuse):
             except IOError as ex:
                 log.error("could not write data" % ex.message)
 
-            self.file.seek(offset)
-            self.file.write(buf)
+#            self.file.seek(offset)
+#            self.file.write(buf)
             return len(buf)
 
         def release(self, flags):
