@@ -71,9 +71,14 @@ class Xmp(Fuse):
     #
     def getattr(self, path):
         log.debug("path %s" % path)
-        lstat = os.lstat("." + path)
-        hashpath=HashPath("Salt")
-        lstat = os.lstat(hashpath.path(path))
+        try:
+            hashpath=HashPath("Salt")
+            dir, full = hashpath.path(path)
+            lstat = os.lstat(full)
+        except Exception as ex:
+            log.debug("not found %s, exception=%s" % (path,ex) )
+            raise
+            lstat = os.lstat("." + path)
         log.debug("lstat %s" % lstat)
         return lstat
 

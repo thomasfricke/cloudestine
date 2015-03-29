@@ -4,7 +4,11 @@ class to map filenames and paths to hashes
 '''
 import hashlib
 import os
-from logger import log
+#from logger import log
+import logging
+log = logging.getLogger(__name__)
+log.debug(__name__)
+log.setLevel(logging.WARNING)
 
 class HashPath(object):
           

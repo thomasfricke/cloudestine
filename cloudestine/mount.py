@@ -14,9 +14,12 @@ class Mount():
         pass
 
     def mount(self,retry=3):
+        if self.is_mounted(): return 0
         for i in range(retry):
             result = os.system("%s/%s -o root=%s %s" %(self.path, self.module, self.rootdir, self.mountdir))
             if result:
+                log.debug("mount failed, unmount")
+                sleep(1)
                 self.unmount()
                 sleep(1)
             else:
@@ -25,18 +28,24 @@ class Mount():
 
     def unmount(self,retry=3):
 
+        if not self.is_mounted(): return 0
+
         for i in range(retry):
             result = os.system("fusermount -u %s" % self.mountdir)
-            if result == 0: return 0
+            if result:
+                log.debug("ummount failed, repeat")
+                sleep(1)
+            else:
+                return 0
 
         return result
 
     def wait_for_mount(self,mounted=True):
-        for i in range(10):
+        for i in range(100):
             if self.is_mounted() == mounted:
                 return True
             else:
-                print("sleep for 1s")
+                log.debug("sleep for 1s")
                 sleep(1)
 
         return False

@@ -36,12 +36,14 @@ class MountXMPCase(unittest.TestCase):
     def tearDown(self):
         self.assertEqual(0,self.mount.unmount())
         self.assertTrue(self.mount.wait_for_mount(False))
+        self.assertFalse(self.mount.is_mounted())
 
     def test_mount_and_unmount(self):
         """
         tests the mount object
         :return:
         """
+        self.assertTrue(self.mount.is_mounted())
         pass
 
     def test_write_to_mount_and_read_from_root(self):
