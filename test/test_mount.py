@@ -23,6 +23,7 @@ class MountXMPCase(unittest.TestCase):
         rootdir   = "%s/rootdir" % path
         mountdir  = "%s/mountdir" % path
 
+        os.system('rm -rf %s/* %s/*' %(rootdir,mountdir))
         self.mount=Mount( path, module, rootdir, mountdir)
 
         self.assertNotEqual(self.mount.rootdir,self.mount.mountdir)
@@ -64,9 +65,6 @@ class MountXMPCase(unittest.TestCase):
         root_filename="%s/%s" % (self.mount.rootdir,full)
 
         self.assertTrue(cmp(root_filename,mount_filename))
-        from time import sleep
-#        sleep(100)
-        sleep(5)
         os.system("find test/rootdir test/mountdir -type f -ls")
         os.system("ls -lFt test")
         os.remove(mount_filename)

@@ -72,9 +72,12 @@ class Xmp(Fuse):
     def getattr(self, path):
         log.debug("path %s" % path)
         try:
-            hashpath=HashPath("Salt")
-            dir, full = hashpath.path(path)
-            lstat = os.lstat(full)
+            if path=='/':
+                lstat = os.lstat('.')
+            else:
+                hashpath=HashPath("Salt")
+                dir, full = hashpath.path(path)
+                lstat = os.lstat(full)
         except Exception as ex:
             log.debug("not found %s, exception=%s" % (path,ex) )
             raise
@@ -96,7 +99,7 @@ class Xmp(Fuse):
 
     def unlink(self, path):
         log.debug("path %s" % path)
-        os.unlink("." + path)
+#        os.unlink("." + path)
         hashpath=HashPath("Salt")
         dir, full = hashpath.path(path)
         os.unlink(full)
